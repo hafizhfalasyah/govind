@@ -32,3 +32,35 @@ This project demonstrates the integration of content presentation, user manageme
 - 📝 Structured company profile content  
 
 ---
+
+## 🛠️ Tech Stack
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg" height="50" alt="Laravel"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" height="50" alt="MySQL"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="50" alt="HTML"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" height="50" alt="CSS"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="50" alt="JavaScript"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" height="50" alt="Tailwind CSS"/>
+</p>
+
+<p align="center">
+  <b>Laravel</b> &nbsp; • &nbsp;
+  <b>MySQL</b> &nbsp; • &nbsp;
+  <b>HTML</b> &nbsp; • &nbsp;
+  <b>CSS</b> &nbsp; • &nbsp;
+  <b>JavaScript</b> &nbsp; • &nbsp;
+  <b>Tailwind CSS</b>
+</p>
+
+---
+
+## 🖼️ Screenshots
+
+### [ Homepage ]
+![Image](https://github.com/user-attachments/assets/a6ee5011-8731-4d4a-93b0-79570a29eb8f)
+
+### [ Admin Dashboard ]
+![Image](https://github.com/user-attachments/assets/6e0d771d-9d16-4b99-8010-875bbfc16db9)
+
+---
