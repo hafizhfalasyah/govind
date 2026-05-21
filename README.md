@@ -58,9 +58,9 @@ This project demonstrates the integration of content presentation, user manageme
 ## 🖼️ Screenshots
 
 ### [ Homepage ]
-![Image](https://github.com/user-attachments/assets/a6ee5011-8731-4d4a-93b0-79570a29eb8f)
+![Image](https://github.com/user-attachments/assets/d06d2199-d5e5-48a9-9ffe-263cf4f2fe41)
 
 ### [ Admin Dashboard ]
-![Image](https://github.com/user-attachments/assets/6e0d771d-9d16-4b99-8010-875bbfc16db9)
+![Image](https://github.com/user-attachments/assets/f93d3496-644b-4b3f-b842-55f357a4dda8)
 
 ---
