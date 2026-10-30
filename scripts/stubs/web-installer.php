@@ -117,7 +117,12 @@ if ($run) {
         }
     };
 
-    $artisan('optimize:clear');
+    // Bukan optimize:clear: cache aplikasi memakai driver database, dan pada database baru tabel `cache`
+    // belum ada sebelum migrate. Cache aplikasi dibersihkan setelah migrate.
+    $artisan('config:clear');
+    $artisan('route:clear');
+    $artisan('view:clear');
+    $artisan('event:clear');
 
     // link public/storage -> storage/app/public di folder web yang sedang dipakai
     $link = __DIR__ . '/storage';
@@ -133,6 +138,7 @@ if ($run) {
     }
 
     $artisan('migrate', ['--force' => true]);
+    $artisan('cache:clear');
     $artisan('config:cache');
     $artisan('route:cache');
 

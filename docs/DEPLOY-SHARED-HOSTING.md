@@ -310,6 +310,7 @@ isi `bootstrap/cache/*.php` (kecuali `.gitignore`) agar cache lama tidak terpaka
 |---|---|
 | Halaman putih / "Composer detected issues in your platform" | PHP di hosting belum 8.5 (4.2) |
 | Error 500 di semua halaman | Baca `storage/logs/laravel.log`; pastikan `.env` lengkap, folder `storage/framework/*` ada (4.4) dan bisa ditulis (4.8) |
+| `optimize:clear` error "no such table: cache" / "Table 'cache' doesn't exist" | Database masih kosong (instalasi pertama): cache memakai driver `database`. Jalankan `php artisan migrate --force` dulu, lalu `optimize:clear` (web installer sudah mengurutkannya sendiri) |
 | "Please provide a valid cache path" | Folder `storage/framework/views` (dan `cache/data`, `sessions`) belum ada (4.4 langkah 3) |
 | Gambar tidak tampil | Link `public/storage` belum ada (ulangi `storage:link` / Metode B langkah 6) atau isi `storage/app/public` belum disalin (4.4) |
 | `view:cache` / `optimize` error "Unable to locate a class or view for component" | Jangan dijalankan (4.7); jalankan `php artisan view:clear` |
