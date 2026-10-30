@@ -14,7 +14,7 @@ Laravel Boost (`laravel/boost`) is **not installed yet**. The project runs **Lar
 ```bash
 composer require laravel/boost:^2.0 --dev
 php artisan boost:install                      # pick agents: Claude Code, Codex, Cursor, …
-php artisan test                               # baseline must stay 12 passed / 13 failed
+php artisan test                               # must stay all green
 ```
 
 What `boost:install` does with this folder:

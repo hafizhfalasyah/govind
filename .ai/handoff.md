@@ -6,6 +6,23 @@ Template and rules: `.claude/skills/govind-handoff/SKILL.md` (plain Markdown —
 
 ---
 
+## 2026-10-30 — Claude Code — fix all audit bugs, local .env helper, storage placeholders
+- **Branch / HEAD:** `staging` → PR to `hafizhfalasyah/govind` main and `solveit-id/govind` main.
+- **Goal:** create a local `.env` (the root `.env` was the production one) and fix every remaining bug from the audit.
+- **Done:**
+  - Programs: update/delete use `findOrFail($id)` (update used to insert a new row, delete did nothing); "Active" checkbox honoured on create/update (`$request->boolean`, absent = inactive); null-safe `slug`.
+  - Testimonials: migration `2026_10_30_000000_make_occupation_nullable_on_testimonials_table`; null-safe `occupation`; admin text `max:255` (+ `maxlength`); new `admin/testimonial-edit.blade.php`; home slider photo from `storage/users/`.
+  - Admin: `admin/partials/validation-errors` on category/program/testimonial pages (errors used to be invisible); Alpine pinned 3.17.5.
+  - Auth: `layouts/guest.blade.php` + components `auth-session-status|input-label|text-input|input-error|primary-button` (forgot/reset/confirm/verify pages render; `view:cache`/`optimize` work); `User::homeRoute()` for login, verification and password-confirmation redirects (users no longer bounced from `/admin/home`); login page "Forgot password?" link + status message.
+  - `public/img/og-govind.jpg` (1200×630 from `hero1.png` + hero copy, fonts Aboreto/Poppins); `config('services.whatsapp.number')` (`WHATSAPP_NUMBER`); `Program::$fillable` `category_id`; seeder phones unique; `UserFactory` default role `user`.
+  - Storage: Laravel 13 skeleton `.gitignore` placeholders in `storage/app/*`, `storage/framework/*`, `storage/logs` (fresh clones work); root `.gitignore` rule for `storage/framework/views/*` removed.
+  - Tests: Breeze tests adapted, `ProfileTest` removed (no profile feature), new `ProgramManagementTest`, `TestimonialTest`, `RegressionTest`.
+  - Deploy kit: web installer runs `view:cache` again; `build-release.ps1` requires green tests again; deploy guide covers the new migration (+ Method D SQL).
+  - `scripts/make-local-env.php`: moves an existing `.env` to `../deployment/prod/.env.project-root-<timestamp>`, writes a local `.env` from `.env.example` + `.env.docker` (APP_KEY, DB 127.0.0.1:3308), copies it to `../deployment/local/.env`; prints no secrets.
+- **In progress (uncommitted):** none. **Pending user action:** run `php scripts/make-local-env.php` (agents are denied access to `.env*`, so the production `.env` is still in the project root until then).
+- **Verification:** `php artisan test` 39 passed (100 assertions). Scenario harness (70 requests) vs. pre-fix run: only intended differences (5 pages 500 → 200/302, program edit/delete now change the right rows, login link, Alpine pin). Docker MariaDB 10.6 with the production copy: new migration up/down/up OK (8 testimonials kept), Method D SQL equivalent, `php artisan optimize` OK, pages 200. Headless Edge: forgot-password (desktop + true 390 px), login with the new link.
+- **Gotchas / decisions:** never run DB-touching artisan commands natively while the root `.env` may be production — Docker is safe (compose env overrides `DB_*`). Headless Edge windows are ≥ ~500 px wide: check mobile layouts inside a 390 px iframe. Still open: AGENTS.md §12 (production code drift, phone DB index, contact form GET, login message on throttle, hreflang).
+
 ## 2026-10-30 — Claude Code — post-upgrade audit, agent handoff docs, Docker stack, deploy kit, backup tidy-up
 - **Branch / HEAD:** `staging` → PR to `hafizhfalasyah/govind` main and to `solveit-id/govind` main (same branch pushed to both).
 - **Goal:** deep audit after the Laravel 13 upgrade; create `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.ai/` (Laravel Boost) and Docker/deploy structure consistent with `rrcons/rrcons_v2`; tidy the backup like `rrcons/rrcons_v1`.

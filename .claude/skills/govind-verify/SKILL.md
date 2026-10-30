@@ -13,7 +13,7 @@ git status -sb && git diff --stat
 php artisan test
 ```
 Tests run on SQLite `:memory:` (forced by `phpunit.xml` + guard in `tests/TestCase.php`), so they never touch a real database.
-Baseline: **12 passed / 13 failed** — the 13 known Breeze failures listed in AGENTS.md §10. Compare the *set* of failing tests, not only the counts.
+Baseline: **all green** (39 tests, AGENTS.md §10).
 
 ## 2. Conditional checks
 
@@ -24,7 +24,7 @@ Baseline: **12 passed / 13 failed** — the 13 known Breeze failures listed in A
 | An admin CRUD method | Create, update, delete, validation error and search all work; `findOrFail($id)` used with `{id}` routes; flash message shown on the list page |
 | A migration | New file only, works on SQLite (tests) and MariaDB 10.6 (Docker: `docker compose --env-file .env.docker exec app php artisan migrate`); never edit a migration that already ran in production |
 | Uploads | Stored on disk `public` under `users/` or `programs/`, filename saved, old file removed on replace, `asset('storage/<dir>/'.$img)` renders |
-| Blade views | Page renders for each role that sees it; desktop + ~390 px mobile; no new `@vite`; output escaped |
+| Blade views | Page renders for each role that sees it; desktop + ~390 px mobile; no new `@vite`; output escaped; `RegressionTest` (all views compile) still green |
 | `composer.json` / framework | `php artisan optimize:clear`; re-check the Laravel 13 pins (AGENTS.md §12a) |
 
 ## 3. Optional manual check
