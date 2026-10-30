@@ -62,7 +62,7 @@ $stamp = Get-Date -Format 'yyyyMMdd-HHmm'
 if (-not $SkipTests) {
     Step 'Menjalankan test (php artisan test)'
     if ($UseDocker) { & docker @compose exec -T app php artisan test } else { & php artisan test }
-    if ($LASTEXITCODE -ne 0) { Fail 'Test gagal, paket tidak dibuat. Saat ini 13 test bawaan Breeze memang gagal (AGENTS.md bagian 12); bila hanya itu yang gagal, ulangi dengan -SkipTests.' }
+    if ($LASTEXITCODE -ne 0) { Fail 'Test gagal, paket tidak dibuat.' }
 }
 
 $stage = Join-Path $env:TEMP "govind-release-$sha"

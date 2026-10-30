@@ -19,8 +19,8 @@ Tanpa Terminal, perintah `php artisan` dijalankan lewat **Cron Job** atau **web 
 > 2. **Hosting masih PHP 8.4.27** (menurut dump). Kode ini butuh **PHP 8.5** — ganti versi PHP dulu (bagian 4.2).
 
 > Sudah diuji lokal (2026-10-30): dump produksi diimpor ke MariaDB Docker 10.6 dengan `scripts\import-db.ps1 -Migrate`
-> → "Nothing to migrate" (repository tidak menambah migration), halaman `/`, `/login`, `/register`, gambar upload
-> tampil, tidak ada error baru di log.
+> → 1 migration baru (`2026_10_30_000000_make_occupation_nullable_on_testimonials_table`, < 1 detik, data tetap),
+> halaman `/`, `/login`, `/register`, `/forgot-password`, gambar upload tampil, tidak ada error baru di log.
 
 Ringkasan alur:
 
@@ -76,8 +76,7 @@ Node.js **tidak** dibutuhkan (semua CSS/JS dari CDN).
    ```powershell
    php artisan test
    ```
-   Hasil yang diharapkan saat ini: **12 passed / 13 failed**. Ke-13 test yang gagal adalah test bawaan Breeze untuk
-   halaman yang memang tidak ada (daftarnya di `AGENTS.md` §10). Test lain yang gagal = ada masalah baru, jangan deploy.
+   Semua test harus lulus (saat ini 39 test). Ada yang gagal = jangan deploy.
 3. **Gladi resik dengan data produksi terbaru** (sangat disarankan)
    1. Hosting → phpMyAdmin → pilih database → *Export* → *Quick*, format *SQL* → simpan, mis.
       `D:\PROYEK\PROYEK SOLVE IT\WEB\govind\deployment\database\produksi.sql`.
@@ -104,11 +103,11 @@ Node.js **tidak** dibutuhkan (semua CSS/JS dari CDN).
       Agar gambar tampil, salin isi `storage/app/public` dari hosting ke folder yang sama di lokal (opsional).
 4. **Bangun paket rilis**
    ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -SkipTests
+   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1
    # bila hosting TIDAK punya Terminal DAN Cron Job:
-   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -SkipTests -WithWebInstaller
+   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -WithWebInstaller
    ```
-   `-SkipTests` dipakai karena test sudah dijalankan di langkah 2 (dan 13 test Breeze memang gagal).
+   Script menjalankan test lagi dan berhenti bila ada yang gagal. Folder `release\` dibuat otomatis (tidak ikut git).
    Hasil: `release\govind-<commit>-<tanggal>.zip`. Dengan `-WithWebInstaller`, URL + kunci web installer
    ditampilkan dan disimpan di `release\govind-<commit>-<tanggal>-installer.txt`. **Rahasiakan kunci itu.**
 
@@ -142,9 +141,9 @@ Docker Desktop dan Git. PHP, Composer, dan MySQL **tidak** perlu ada di Windows.
    3. Buka http://localhost:8083 dan cek seperti 1.2 langkah 3.4. Email yang terkirim terlihat di http://localhost:8026.
 4. **Bangun paket rilis** (PHP & Composer dijalankan di dalam container):
    ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -UseDocker -SkipTests
+   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -UseDocker
    # bila hosting TIDAK punya Terminal DAN Cron Job:
-   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -UseDocker -SkipTests -WithWebInstaller
+   powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -UseDocker -WithWebInstaller
    ```
 
 ---
@@ -237,15 +236,16 @@ php artisan storage:link
 php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
+php artisan view:cache
 ```
-**Jangan** jalankan `php artisan view:cache` atau `php artisan optimize`: keduanya gagal karena view Breeze bawaan
-yang rusak (AGENTS.md §12 #3). View tetap di-compile otomatis saat halaman dibuka.
+Migration yang dijalankan saat ini: `2026_10_30_000000_make_occupation_nullable_on_testimonials_table`
+(kolom `testimonials.occupation` boleh kosong; data tidak berubah).
 
 **Metode A: Terminal** (bila tersedia). cPanel → *Terminal*:
 ```bash
 cd ~/govind
 php -v        # harus 8.5.x
-php artisan optimize:clear && php artisan storage:link && php artisan migrate --force && php artisan config:cache && php artisan route:cache
+php artisan optimize:clear && php artisan storage:link && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
 **Metode B: Cron Job sekali jalan** (tanpa Terminal)
@@ -255,10 +255,11 @@ php artisan optimize:clear && php artisan storage:link && php artisan migrate --
 2. cPanel → *Cron Jobs* → *Add New Cron Job* → *Common Settings*: **Once Per Minute** (`* * * * *`). Command
    (ganti `USER` dan path PHP):
    ```bash
-   cd /home/USER/govind && P=/opt/alt/php85/usr/bin/php && $P artisan optimize:clear > storage/logs/deploy.log 2>&1 && $P artisan storage:link >> storage/logs/deploy.log 2>&1 && $P artisan migrate --force >> storage/logs/deploy.log 2>&1 && $P artisan config:cache >> storage/logs/deploy.log 2>&1 && $P artisan route:cache >> storage/logs/deploy.log 2>&1
+   cd /home/USER/govind && P=/opt/alt/php85/usr/bin/php && $P artisan optimize:clear > storage/logs/deploy.log 2>&1 && $P artisan storage:link >> storage/logs/deploy.log 2>&1 && $P artisan migrate --force >> storage/logs/deploy.log 2>&1 && $P artisan config:cache >> storage/logs/deploy.log 2>&1 && $P artisan route:cache >> storage/logs/deploy.log 2>&1 && $P artisan view:cache >> storage/logs/deploy.log 2>&1
    ```
-3. Tunggu 1–2 menit, buka `govind/storage/logs/deploy.log` di File Manager. Harus ada `Nothing to migrate`
-   (repository ini tidak menambah migration) dan diakhiri `Routes cached successfully`.
+3. Tunggu 1–2 menit, buka `govind/storage/logs/deploy.log` di File Manager. Harus ada migration
+   `2026_10_30_000000_make_occupation_nullable_on_testimonials_table ... DONE` (atau `Nothing to migrate` bila sudah
+   pernah jalan) dan diakhiri `Blade templates cached successfully`.
    Baris `ERROR The [public/storage] link already exists.` itu **normal**; error lain berarti gagal.
 4. **Hapus cron job tersebut.**
 5. Bila `deploy.log` kosong atau tidak ada, path PHP-nya salah. Buat cron `php -v > /home/USER/phpver.txt 2>&1` untuk
@@ -272,14 +273,20 @@ php artisan optimize:clear && php artisan storage:link && php artisan migrate --
    Tanpa kunci yang benar halaman ini menjawab 404.
 3. Halaman menampilkan pemeriksaan server: versi PHP, ekstensi, `.env`, izin folder, `symlink()`, koneksi database,
    dan daftar migration yang akan dijalankan. Semua harus ✔.
-4. Klik **Jalankan deploy** dan tunggu sampai selesai. Semua langkah harus ✔ (installer tidak menjalankan `view:cache`).
+4. Klik **Jalankan deploy** dan tunggu sampai selesai. Semua langkah harus ✔.
 5. File installer **menghapus dirinya sendiri** setelah berhasil. Pastikan `install-*.php` sudah tidak ada di folder
    `public` (atau `public_html`); bila masih ada, hapus manual.
 
 **Metode D: tanpa menjalankan PHP di server**
-Repository ini tidak menambah migration, jadi database tidak perlu diubah. Cukup minta support hosting membuat link
-storage bila belum ada (`ln -s /home/USER/govind/storage/app/public /home/USER/govind/public/storage`) dan hapus
-isi `bootstrap/cache/*.php` (kecuali `.gitignore`) agar cache lama tidak terpakai.
+1. phpMyAdmin hosting → database → tab *SQL* → jalankan (sama dengan migration di atas):
+   ```sql
+   ALTER TABLE `testimonials` MODIFY `occupation` VARCHAR(255) NULL;
+   INSERT INTO `migrations` (`migration`, `batch`)
+     SELECT '2026_10_30_000000_make_occupation_nullable_on_testimonials_table', COALESCE(MAX(`batch`), 0) + 1 FROM `migrations`;
+   ```
+2. Minta support hosting membuat link storage bila belum ada
+   (`ln -s /home/USER/govind/storage/app/public /home/USER/govind/public/storage`).
+3. Hapus isi `bootstrap/cache/*.php` (kecuali `.gitignore`) agar cache lama tidak terpakai.
 
 ### 4.8 Izin folder
 `storage/` dan `bootstrap/cache/` harus bisa ditulis web server (755 atau 775): File Manager → klik kanan →
@@ -288,7 +295,8 @@ isi `bootstrap/cache/*.php` (kecuali `.gitignore`) agar cache lama tidak terpaka
 ### 4.9 Rollback (bila ada masalah)
 1. *Rename* `govind` → `govind_gagal`, lalu `govind_old` → `govind`.
 2. Kembalikan versi PHP sebelumnya (8.4) bila kode lama tidak jalan di 8.5.
-3. Database tidak diubah oleh deploy ini; restore dari backup 4.1 hanya bila ada perubahan data yang salah.
+3. Migration deploy ini hanya membuat `testimonials.occupation` boleh kosong — kode lama tetap jalan dengan itu.
+   Restore database dari backup 4.1 hanya bila ada perubahan data yang salah.
 
 ---
 
@@ -298,6 +306,8 @@ isi `bootstrap/cache/*.php` (kecuali `.gitignore`) agar cache lama tidak terpaka
 - [ ] Gambar program dan foto user tampil (artinya `storage/app/public` dan link `public/storage` benar).
 - [ ] `/register` → daftar akun uji → masuk sebagai user → `/testimonial` bisa dibuka; tombol daftar program membuka WhatsApp.
 - [ ] Login admin → `/admin/home`, Users, Category, Program, Testimonial (cari, paging, tampil/sembunyikan testimoni).
+- [ ] Program: edit satu program (nama/aktif) → berubah di daftar tanpa baris baru; buat program uji lalu hapus.
+- [ ] `/login` → *Forgot password?* membuka halaman reset (email reset terkirim bila SMTP sudah diisi).
 - [ ] Hapus akun uji lewat Users.
 - [ ] Tidak ada error baru di `storage/logs/laravel.log`.
 - [ ] Metode B: cron job sudah dihapus. Metode C: file `install-*.php` sudah tidak ada.
@@ -313,9 +323,8 @@ isi `bootstrap/cache/*.php` (kecuali `.gitignore`) agar cache lama tidak terpaka
 | `optimize:clear` error "no such table: cache" / "Table 'cache' doesn't exist" | Database masih kosong (instalasi pertama): cache memakai driver `database`. Jalankan `php artisan migrate --force` dulu, lalu `optimize:clear` (web installer sudah mengurutkannya sendiri) |
 | "Please provide a valid cache path" | Folder `storage/framework/views` (dan `cache/data`, `sessions`) belum ada (4.4 langkah 3) |
 | Gambar tidak tampil | Link `public/storage` belum ada (ulangi `storage:link` / Metode B langkah 6) atau isi `storage/app/public` belum disalin (4.4) |
-| `view:cache` / `optimize` error "Unable to locate a class or view for component" | Jangan dijalankan (4.7); jalankan `php artisan view:clear` |
 | Web installer: ✘ `symlink()` | Fungsi dinonaktifkan hosting: pakai Metode B, atau minta support membuat link (Metode D) |
 | "419 Page Expired" saat login | `APP_KEY`/`APP_NAME` berubah atau cookie lama: samakan dengan `.env` lama, lalu hapus cookie browser |
 | Upload gambar program > 2 MB gagal | Naikkan `upload_max_filesize`/`post_max_size` (4.2) |
 | Fitur statistik/blog hilang | Kode produksi lama tidak ada di repository (peringatan di atas) — rollback 4.9, lalu masukkan kode itu ke repository |
-| Perubahan tidak terlihat | Ulangi `optimize:clear`, lalu `config:cache` dan `route:cache` |
+| Perubahan tidak terlihat | Ulangi `optimize:clear`, lalu `config:cache`, `route:cache`, `view:cache` |

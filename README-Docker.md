@@ -18,7 +18,8 @@ Folder proyek di-mount ke container, jadi perubahan kode langsung terlihat tanpa
 
 ```powershell
 copy .env.docker.example .env.docker      # isi password DB & GOVIND_APP_KEY
-copy .env.example .env                    # bila belum ada; isi APP_KEY yang sama
+php scripts\make-local-env.php           # .env lokal dari .env.example + .env.docker (APP_KEY & DB sama);
+                                          # .env lama (mis. produksi) dipindah ke ..\deployment\prod\
 docker compose --env-file .env.docker up -d --build
 docker compose --env-file .env.docker exec app php artisan migrate
 ```
@@ -48,7 +49,7 @@ docker compose --env-file .env.docker logs -f app
 
 Test **selalu** memakai SQLite in-memory (`phpunit.xml` + pengaman di `tests/TestCase.php`),
 jadi aman dijalankan di container walaupun container terhubung ke MariaDB.
-Hasil saat ini: 12 passed / 13 failed (13 test bawaan Breeze yang memang gagal, lihat `AGENTS.md` §10).
+Hasil saat ini: 39 test, semua lulus.
 
 ## Tanpa Docker untuk PHP (native PHP 8.5)
 
@@ -66,12 +67,8 @@ Nilai `DB_*` di `.env` tidak mengganggu Docker karena `compose.yaml` menimpanya.
 
 Tanpa Docker sama sekali (MySQL XAMPP): `DB_PORT=3306`, `DB_USERNAME=root`.
 
-Pada clone baru, folder `storage/framework/{views,cache/data,sessions}` belum ada (tidak ikut git). Container
-membuatnya otomatis; untuk mode native buat manual:
-
-```powershell
-mkdir storage\framework\views, storage\framework\cache\data, storage\framework\sessions, storage\logs -Force
-```
+Folder `storage/framework/{views,cache/data,sessions}` dan `storage/logs` ikut repository (berisi `.gitignore`),
+jadi clone baru langsung bisa dijalankan.
 
 ## Gambar upload (`public/storage`)
 
@@ -90,9 +87,9 @@ cmd /c mklink /D public\storage ..\storage\app\public
 ## Paket rilis untuk shared hosting
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -UseDocker -SkipTests
+powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1 -UseDocker
 # hosting tanpa Terminal & Cron Job: tambahkan -WithWebInstaller
 ```
 
-`-SkipTests` diperlukan selama 13 test Breeze di atas masih gagal: jalankan test dulu dan pastikan hanya itu yang gagal.
+Hasilnya ada di folder `release\` (dibuat otomatis saat build pertama; tidak ikut git karena berisi kunci web installer).
 Langkah lengkap (dan **peringatan penting soal kode produksi**): `docs/DEPLOY-SHARED-HOSTING.md`.
