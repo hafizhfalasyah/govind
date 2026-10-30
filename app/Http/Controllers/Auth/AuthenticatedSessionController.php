@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
 
             $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.home', absolute: false));
+            return redirect()->intended(route($request->user()->homeRoute(), absolute: false));
         } catch (ValidationException $e) {
             return back()
                 ->withErrors([ 

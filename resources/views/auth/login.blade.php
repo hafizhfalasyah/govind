@@ -69,7 +69,11 @@
           @if(session('error'))
             <div class="text-red-500 text-sm mb-1 italic">{{ session('error') }}</div>
           @endif
-          
+
+          @if(session('status'))
+            <div class="text-[#285E5E] text-sm mb-1 font-medium">{{ session('status') }}</div>
+          @endif
+
           <!-- Email -->
           <div
             class="relative"
@@ -142,6 +146,12 @@
               @error('email') border-red-500 @enderror
               focus:ring-2 focus:ring-[#285E5E] focus:outline-none bg-white/80 transition-all duration-300 placeholder:text-gray-400"
             />
+          </div>
+
+          <div class="text-right" data-aos="fade-right" data-aos-delay="700">
+            <a href="{{ route('password.request') }}" class="text-xs font-semibold text-[#285E5E] hover:underline">
+              Forgot password?
+            </a>
           </div>
 
           <!-- Button -->

@@ -17,7 +17,23 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('home', absolute: false));
+});
+
+test('admins are redirected to the admin dashboard after login', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->post('/login', [
+        'email' => $admin->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticatedAs($admin);
+    $response->assertRedirect(route('admin.home', absolute: false));
+});
+
+test('login screen links to the password reset page', function () {
+    $this->get('/login')->assertSee(route('password.request'), false);
 });
 
 test('users can not authenticate with invalid password', function () {

@@ -38,4 +38,12 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Nama route halaman awal sesuai role (dipakai setelah login / verifikasi / konfirmasi password)
+     */
+    public function homeRoute(): string
+    {
+        return $this->isAdmin() ? 'admin.home' : 'home';
+    }
 }
