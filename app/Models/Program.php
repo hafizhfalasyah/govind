@@ -13,7 +13,7 @@ class Program extends Model
         'img',
         'name',
         'slug',
-        'category',
+        'category_id',
         'short_desc',
         'long_desc',
         'duration',

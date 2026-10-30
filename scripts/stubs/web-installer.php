@@ -4,9 +4,7 @@
  * Govind — web installer sekali pakai untuk shared hosting TANPA Terminal & Cron Job.
  *
  * Dibuat oleh: scripts/build-release.ps1 -WithWebInstaller (nama file & kunci acak per build).
- * Menjalankan: link public/storage, php artisan migrate --force, config:cache dan route:cache.
- * view:cache sengaja TIDAK dijalankan: view Breeze bawaan (auth/forgot-password dll.) memakai komponen
- * <x-...> yang tidak ada sehingga view:cache gagal (lihat AGENTS.md bagian 12). View tetap di-compile saat dibuka.
+ * Menjalankan: link public/storage, php artisan migrate --force, dan cache Laravel (config, route, view).
  * File ini MENGHAPUS DIRINYA SENDIRI setelah langkah selesai. Bila gagal terhapus, hapus manual.
  */
 
@@ -141,6 +139,7 @@ if ($run) {
     $artisan('cache:clear');
     $artisan('config:cache');
     $artisan('route:cache');
+    $artisan('view:cache');
 
     $deleted = !$failed && @unlink(__FILE__);
 }

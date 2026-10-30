@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // Nomor admin tujuan pendaftaran program & form kontak (format internasional tanpa +)
+    'whatsapp' => [
+        'number' => env('WHATSAPP_NUMBER', '6282245975553'),
+    ],
+
 ];

@@ -5,11 +5,11 @@ description: Add or change an admin CRUD module or field in GOVIND (users, categ
 
 # GOVIND admin CRUD change
 
-Follow the existing pattern exactly (see `AdminController` user/category sections, which are the correct reference — not the program update/delete methods, which have a binding bug).
+Follow the existing pattern exactly (see the `AdminController` user/category/program sections).
 
 ## 1. Database
 - New migration file (`php artisan make:migration ...`); never edit one that already ran in production.
-- MariaDB 10.6 in production, SQLite in tests: keep column types portable. If a column is optional in the form, make it `nullable()` (the existing `testimonials.occupation` mismatch causes a 500).
+- MariaDB 10.6 in production, SQLite in tests: keep column types portable. If a column is optional in the form, make it `nullable()` (a NOT NULL `testimonials.occupation` with nullable validation caused 500s until 2026-10-30).
 
 ## 2. Model (`app/Models/<Name>.php`)
 - `use HasFactory;`, `$fillable` with the **real** column names, `$casts` for booleans/decimals, relations (`belongsTo` / `hasMany`).
@@ -24,12 +24,12 @@ Route::delete('/<area>/delete/{id}', [AdminController::class, '<area>Destroy'])-
 
 ## 4. Controller (`AdminController`, new `// ===== <AREA> CONTROLLERS =====` section)
 - List: `Model::query()`, `if ($request->filled('q'))` LIKE search, `orderBy('created_at', 'desc')`, `paginate(10)->withQueryString()`, `view('admin.<area>', compact(...))`.
-- Store/Update: `$request->validate([...])`; for update `Model::findOrFail($id)` (method signature `($request, $id)`); assign fields; uploads via `storeAs('<dir>', time().'-'.uniqid().'.'.$ext, 'public')` and delete the old file; `try { ... } catch (QueryException $e) { return back()->withInput()->with('error', ...); }`; success → `redirect()->route('admin.<area>')->with('success', ...)`.
+- Store/Update: `$request->validate([...])` (max = column size); read optional keys with `$data['x'] ?? null`; checkboxes with `$request->boolean('x')`; for update `Model::findOrFail($id)` (method signature `($request, $id)`); assign fields; uploads via `storeAs('<dir>', time().'-'.uniqid().'.'.$ext, 'public')` and delete the old file; `try { ... } catch (QueryException $e) { return back()->withInput()->with('error', ...); }`; success → `redirect()->route('admin.<area>')->with('success', ...)`.
 - Destroy: `findOrFail($id)`, delete file(s), `delete()`, flash.
 
 ## 5. Admin view (`resources/views/admin/<area>.blade.php`)
 - `@extends('admin.layouts.main')`, `@section('title'|'page_title'|'page_subtitle'|'content')`.
-- Copy the structure of `admin/category.blade.php` / `admin/user.blade.php`: flash banners, search form (GET), table, `$items->links()`, Alpine page object with create/edit modals, edit action `route('admin.<area>.update', ['id' => '__ID__'])`, `@csrf` + `@method('PUT'|'DELETE')`.
+- Copy the structure of `admin/category.blade.php` / `admin/user.blade.php`: flash banners, `@include('admin.partials.validation-errors')`, search form (GET), table, `$items->links()`, Alpine page object with create/edit modals, edit action `route('admin.<area>.update', ['id' => '__ID__'])`, `@csrf` + `@method('PUT'|'DELETE')`.
 - Add the sidebar link in `admin/layouts/main.blade.php`.
 
 ## 6. Public page (if shown on `/`)

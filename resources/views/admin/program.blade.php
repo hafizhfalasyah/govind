@@ -64,6 +64,8 @@
             </div>
         @endif
 
+        @include('admin.partials.validation-errors')
+
         <!-- HEADER -->
         <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

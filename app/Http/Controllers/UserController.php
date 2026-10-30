@@ -36,7 +36,7 @@ class UserController extends Controller
                 'text'    => $t->text,
                 'name'    => $t->name,
                 'role'    => $t->occupation,
-                'photo'   => $t->img ? asset($t->img) : null,
+                'photo'   => $t->img ? asset('storage/users/' . $t->img) : null,
                 'date'    => $t->created_at->translatedFormat('d F Y'),
                 'initial' => \Illuminate\Support\Str::upper(substr($initial, 0, 1)),
             ];
@@ -53,7 +53,7 @@ class UserController extends Controller
     public function userRegisterProgram(Program $program) {
         $user = Auth::user();
 
-        $nomorTujuan = '6282245975553';
+        $nomorTujuan = config('services.whatsapp.number');
 
         $message  = "🌟 *Pendaftaran Program Govind Abra Enterprise* 🌟\n\n";
         $message .= "Halo Admin,\n";
@@ -96,7 +96,7 @@ class UserController extends Controller
 
         Testimonial::create([
             'name'       => $user->name,
-            'occupation' => $data['occupation'],
+            'occupation' => $data['occupation'] ?? null,
             'text'       => $data['text'],
             'img'        => $imgPath,
         ]);
@@ -108,7 +108,7 @@ class UserController extends Controller
 
     // ================================= CONTACT CONTROLLERS =================================
     public function userSubmitContact(Request $request) {
-        $nomorTujuan = '6282245975553';
+        $nomorTujuan = config('services.whatsapp.number');
 
         $message  = "📩 *Pesan Kontak dari Website Govind Abra Enterprise* 📩\n\n";
         $message .= "Halo Admin,\n";

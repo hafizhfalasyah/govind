@@ -349,13 +349,13 @@ class AdminController extends Controller
             $program = new Program();
 
             $program->name        = $data['name'];
-            $program->slug        = $data['slug'] ?: Str::slug($data['name']);
+            $program->slug        = ($data['slug'] ?? null) ?: Str::slug($data['name']);
             $program->category_id = $data['category_id'];
             $program->short_desc  = $data['short_desc'] ?? null;
             $program->long_desc   = $data['long_desc'] ?? null;
             $program->duration    = $data['duration'] ?? null;
             $program->price       = $data['price'];
-            $program->is_active   = $request->boolean('is_active', true);
+            $program->is_active   = $request->boolean('is_active'); // checkbox: tidak dikirim = tidak dicentang
 
             if ($request->hasFile('img')) {
                 $filename = time() . '-' . uniqid() . '.' . $request->img->extension();
@@ -374,7 +374,9 @@ class AdminController extends Controller
                 ->with('error', 'Terjadi kesalahan saat menyimpan program: ' . $e->getMessage());
         }
     }
-    public function programUpdate(Request $request, Program $program) {
+    public function programUpdate(Request $request, $id) {
+        $program = Program::findOrFail($id);
+
         $data = $request->validate([
             'img'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'name'        => 'required|string|max:255',
@@ -389,13 +391,13 @@ class AdminController extends Controller
 
         try {
             $program->name        = $data['name'];
-            $program->slug        = $data['slug'] ?: Str::slug($data['name']);
+            $program->slug        = ($data['slug'] ?? null) ?: Str::slug($data['name']);
             $program->category_id = $data['category_id'];
             $program->short_desc  = $data['short_desc'] ?? null;
             $program->long_desc   = $data['long_desc'] ?? null;
             $program->duration    = $data['duration'] ?? null;
             $program->price       = $data['price'];
-            $program->is_active   = $request->boolean('is_active', true);
+            $program->is_active   = $request->boolean('is_active'); // checkbox: tidak dikirim = tidak dicentang
 
             if ($request->hasFile('img')) {
                 if ($program->img && file_exists(storage_path('app/public/programs/' . $program->img))) {
@@ -418,7 +420,9 @@ class AdminController extends Controller
                 ->with('error', 'Terjadi kesalahan saat memperbarui program: ' . $e->getMessage());
         }
     }
-    public function programDestroy(Program $program) {
+    public function programDestroy($id) {
+        $program = Program::findOrFail($id);
+
         try {
             if ($program->img && file_exists(storage_path('app/public/programs/' . $program->img))) {
                 @unlink(storage_path('app/public/programs/' . $program->img));
@@ -466,7 +470,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name'        => ['required', 'string', 'max:255'],
             'occupation'  => ['nullable', 'string', 'max:255'],
-            'text'        => ['required', 'string'],
+            'text'        => ['required', 'string', 'max:255'], // kolom varchar(255)
             'is_visible'  => ['nullable', 'boolean'],
         ]);
 

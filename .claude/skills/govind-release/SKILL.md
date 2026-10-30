@@ -17,7 +17,7 @@ Both repos contain the same history (unified by merge `cc66ca8`); each merges PR
 ```bash
 git fetch --all --prune
 git status -sb && git branch -vv
-php artisan test     # baseline 12 passed / 13 failed (known Breeze set) — anything else must be explained
+php artisan test     # must be green
 git switch staging && git merge --ff-only origin/main
 ```
 
