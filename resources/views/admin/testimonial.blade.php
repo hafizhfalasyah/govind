@@ -53,6 +53,8 @@
             </div>
         @endif
 
+        @include('admin.partials.validation-errors')
+
         {{-- HEADER --}}
         <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -356,6 +358,7 @@
                             name="text"
                             id="edit-text"
                             rows="4"
+                            maxlength="255"
                             class="w-full rounded-xl border border-[#C1DCDC]/80 bg-white px-3 py-2 text-[13px] text-[#285E5E] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#6AAEAD] focus:border-[#6AAEAD] resize-none"
                             placeholder="Client feedback"
                         ></textarea>

@@ -32,7 +32,7 @@
         </script>
 
         <!-- Alpine.js CDN -->
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script defer src="https://unpkg.com/alpinejs@3.17.5/dist/cdn.min.js"></script>
 
         <!-- Font Inter -->
         <link rel="preconnect" href="https://fonts.gstatic.com"/>
